@@ -11,10 +11,40 @@ Components/DataTables
 .. image:: https://github.com/HeaTTheatR/KivyMD-data/raw/master/gallery/kivymddoc/data-tables-previous.png
     :align: center
 
+Warnings
+---------
+
 .. warning::
 
-    Data tables are still far from perfect. Errors are possible and we hope
-    you inform us about them.
+    Data tables are still far from perfect. The class is in constant change,
+    because of optimizations and bug fixes.
+
+    If you find a bug or have an improvement you want to share, take some time
+    and share your discoveries with us over the main git repo.
+
+    Any help is well appreciated.
+
+.. warning::
+
+    In versions prior to Kivy 2.1-dev0 exists an error in which is the table
+    has only one row in the current page, the table will only render one
+    column instead of the whole row.
+
+.. note::
+
+    MDDataTable allows developers to sort the data provided by column. This
+    happens thanks to the use of an external function that you can bind while
+    you're defining the table columns.
+
+    Be aware that the sorting function must return a 2 value list in the
+    format of:
+
+    `[Index, Sorted_Row_Data]`
+
+    This is because the index list is needed to allow MDDataTable to keep track
+    of the selected rows. and, after the data is sorted, update the row
+    checkboxes.
+
 """
 
 # Special thanks for the info -
@@ -65,7 +95,11 @@ Builder.load_string(
     canvas.before:
         Color:
             rgba:
-                (root.theme_cls.bg_darkest if root.theme_cls.theme_style == "Light" else root.theme_cls.bg_light) \
+                (\
+                root.theme_cls.bg_darkest \
+                if root.theme_cls.theme_style == "Light" else \
+                root.theme_cls.bg_light \
+                ) \
                 if self.selected else root.theme_cls.bg_normal
         Rectangle:
             pos: self.pos
@@ -95,13 +129,18 @@ Builder.load_string(
                 size: ("24dp", "24dp") if root.icon else (0, 0)
                 icon: root.icon if root.icon else ""
                 theme_text_color: "Custom"
-                text_color: root.icon_color if root.icon_color else root.theme_cls.primary_color
+                text_color:
+                    root.icon_color if root.icon_color else \
+                    root.theme_cls.primary_color
 
             MDLabel:
                 id: label
                 text: " " + root.text
-                color: (1, 1, 1, 1) if root.theme_cls.theme_style == "Dark" else (0, 0, 0, 1)
                 markup: True
+                color:
+                    (1, 1, 1, 1) \
+                    if root.theme_cls.theme_style == "Dark" else \
+                    (0, 0, 0, 1)
 
     MDSeparator:
 
@@ -125,12 +164,16 @@ Builder.load_string(
             height: self.texture_size[1]
             bold: True
             markup: True
-            color: (1, 1, 1, 1) if root.theme_cls.theme_style == "Dark" else (0, 0, 0, 1)
+            color:
+                (1, 1, 1, 1) \
+                if root.theme_cls.theme_style == "Dark" else \
+                (0, 0, 0, 1)
 
     MDSeparator:
         id: separator
 
-<SortButton>:
+
+<SortButton>
     id: sort_btn
     icon: "arrow-up"
     pos_hint: {"center_y": 0.5}
@@ -139,6 +182,7 @@ Builder.load_string(
     theme_text_color: "Custom"
     text_color: self.theme_cls.secondary_text_color
     opacity: 0
+
 
 <TableHeader>
     bar_width: 0
@@ -178,7 +222,7 @@ Builder.load_string(
     data: root.recycle_data
     data_first_cells: root.data_first_cells
     key_viewclass: "viewclass"
-    #effect_cls: StiffScrollEffect
+    # effect_cls: StiffScrollEffect
 
     TableRecycleGridLayout:
         id: row_controller
@@ -203,7 +247,10 @@ Builder.load_string(
         shorten: True
         halign: "right"
         font_style: "Caption"
-        color: (1, 1, 1, 1) if root.theme_cls.theme_style == "Dark" else (0, 0, 0, 1)
+        color:
+            (1, 1, 1, 1) \
+            if root.theme_cls.theme_style == "Dark" else \
+            (0, 0, 0, 1)
 
     MDDropDownItem:
         id: drop_item
@@ -224,7 +271,10 @@ Builder.load_string(
         -text_size: None, None
         pos_hint: {"center_y": .5}
         font_style: "Caption"
-        color: (1, 1, 1, 1) if root.theme_cls.theme_style == "Dark" else (0, 0, 0, 1)
+        color:
+            (1, 1, 1, 1) \
+            if root.theme_cls.theme_style == "Dark" else \
+            (0, 0, 0, 1)
 
     MDIconButton:
         id: button_back
@@ -253,15 +303,7 @@ Builder.load_string(
         id: container
         orientation: "vertical"
         elevation: root.elevation
-        md_bg_color: 0, 0, 0, 0
         padding: "24dp", "24dp", "8dp", "8dp"
-
-        canvas:
-            Color:
-                rgba: root.theme_cls.bg_normal
-            RoundedRectangle:
-                pos: self.pos
-                size: self.size
 """
 )
 
@@ -483,7 +525,6 @@ class SortButton(MDIconButton):
 
 class CellHeader(MDTooltip, BoxLayout):
     text = StringProperty()  # column text
-
     sort_action = ObjectProperty()
     table_data = ObjectProperty()
     is_sorted = BooleanProperty(False)
@@ -503,7 +544,6 @@ class CellHeader(MDTooltip, BoxLayout):
                 )
                 ib.size = [dp(24), dp(24)]
                 ib.opacity = 1
-
             else:
                 self.bind(on_enter=self.set_sort_btn)
                 self.bind(on_leave=self.set_sort_btn)
@@ -558,7 +598,10 @@ class CellHeader(MDTooltip, BoxLayout):
 
     def restore_checks(self, indices):
         curr_checks = self.table_data.current_selection_check
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8f83652a5c6eb4e03eb123458a4dd4a9d8730612
         rows_num = self.table_data.rows_num
         columns = self.table_data.total_col_headings
 
@@ -570,7 +613,10 @@ class CellHeader(MDTooltip, BoxLayout):
                     (indices[y // columns + x * rows_num]) % rows_num
                 ) * columns
                 new_checks[new_page].append(new_indice)
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8f83652a5c6eb4e03eb123458a4dd4a9d8730612
         self.table_data.current_selection_check = dict(new_checks)
 
     def set_sort_btn(self, instance):
@@ -578,7 +624,6 @@ class CellHeader(MDTooltip, BoxLayout):
         if btn.opacity:
             btn.size = [dp(24), dp(0)]
             btn.opacity = 0
-
         else:
             btn.size = [dp(24), dp(24)]
             btn.opacity = 1
@@ -777,7 +822,10 @@ class TableData(RecycleView):
                 self._current_value = 1
                 self._to_value = self.rows_num + self._current_value - 1
 
-            self.pagination.ids.label_rows_per_page.text = f"{self._current_value}-{self._to_value} of {len(self.row_data)}"
+            self.pagination.ids.label_rows_per_page.text = (
+                f"{self._current_value}-{self._to_value} "
+                f"of {len(self.row_data)}"
+            )
 
     def select_all(self, state):
         """Sets the checkboxes of all rows to the active/inactive position."""
@@ -790,7 +838,10 @@ class TableData(RecycleView):
 
         if state == "down":
             # select all checks on all pages
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8f83652a5c6eb4e03eb123458a4dd4a9d8730612
             rows_num = self.rows_num
             columns = self.total_col_headings
             full_pages = len(self.row_data) // self.rows_num
@@ -824,7 +875,6 @@ class TableData(RecycleView):
                     self.cell_row_obj_dict[i] = cell_row_obj
             if cell_row_obj:
                 tmp.append(cell_row_obj.ids.check.state == state)
-
         return all(tmp)
 
     def _get_row_checks(self):
@@ -863,18 +913,26 @@ class TableData(RecycleView):
             self.pagination_menu_open = True
             self.pagination_menu.open()
 
-    def set_number_displayed_lines(self, instance_menu, instance_menu_item):
+    def set_number_displayed_lines(self, text_item):
         """
         Called when the user sets the number of pages displayed
         in the table.
         """
 
+<<<<<<< HEAD
         self.rows_num = int(instance_menu_item.text)
+=======
+        self.rows_num = int(text_item)
+>>>>>>> 8f83652a5c6eb4e03eb123458a4dd4a9d8730612
         self.set_next_row_data_parts("reset")
         self.set_text_from_of("reset")
 
     def set_next_row_data_parts(self, direction):
         """Called when switching the pages of the table."""
+<<<<<<< HEAD
+=======
+
+>>>>>>> 8f83652a5c6eb4e03eb123458a4dd4a9d8730612
         if direction == "reset":
             self._rows_number = 0
             self.pagination.ids.button_back.disabled = True
@@ -893,10 +951,6 @@ class TableData(RecycleView):
             self.pagination.ids.button_forward.disabled = True
         if self._current_value == 1:
             self.pagination.ids.button_back.disabled = True
-
-    def _split_list_into_equal_parts(self, lst, parts):
-        for i in range(0, len(lst), parts):
-            yield lst[i : i + parts]
 
     def on_mouse_select(self, instance):
         """Called on the ``on_enter`` event of the :class:`~CellRow` class."""
@@ -918,6 +972,10 @@ class TableData(RecycleView):
     def on_pagination(self, instance, value):
         if self._to_value < len(self.row_data):
             self.pagination.ids.button_forward.disabled = False
+
+    def _split_list_into_equal_parts(self, lst, parts):
+        for i in range(0, len(lst), parts):
+            yield lst[i : i + parts]
 
     # def on_pagination(self, instance_table, instance_pagination):
     #    if len(self._row_data_parts) <= self._to_value:
@@ -944,16 +1002,35 @@ class MDDataTable(ThemableBehavior, AnchorLayout):
 
         from kivy.metrics import dp
         from kivy.uix.anchorlayout import AnchorLayout
+        from kivy.lang import Builder
+        from kivy.logger import Logger
 
         from kivymd.app import MDApp
         from kivymd.uix.datatables import MDDataTable
 
+        kv = '''
+        BoxLayout:
+            orientation: "vertical"
+            BoxLayout:
+                id:button_tab
+                size_hint_y:None
+                height: dp(48)
+
+                MDFlatButton:
+                    text: "Hello <3"
+                    on_release:
+                        app.update_row_data()
+
+            BoxLayout:
+                id:body
+
+        '''
 
         class Example(MDApp):
             def build(self):
-                layout = AnchorLayout()
                 self.data_tables = MDDataTable(
-                    size_hint=(0.7, 0.6),
+                    # MDDataTable allows the use of size_hint
+                    size_hint=(0.8, 0.7),
                     use_pagination=True,
                     check=True,
                     column_data=[
@@ -997,8 +1074,49 @@ class MDDataTable(ThemableBehavior, AnchorLayout):
                 )
                 self.data_tables.bind(on_row_press=self.on_row_press)
                 self.data_tables.bind(on_check_press=self.on_check_press)
-                layout.add_widget(self.data_tables)
-                return layout
+                root = Builder.load_string(kv)
+                root.ids.body.add_widget(self.data_tables)
+                return root
+
+            def update_row_data(self, *dt):
+                self.data_tables.row_data = [
+                (
+                    "21",
+                    ("alert", [255 / 256, 165 / 256, 0, 1], "No Signal"),
+                    "Astrid: NE shared managed",
+                    "Medium",
+                    "Triaged",
+                    "0:33",
+                    "Chase Nguyen"
+                ),
+                ("32", ("alert-circle", [1, 0, 0, 1], "Offline"),
+                "Cosmo: prod shared ares", "Huge", "Triaged", "0:39",
+                "Brie Furman"),
+                ("43", (
+                "checkbox-marked-circle",
+                [39 / 256, 174 / 256, 96 / 256, 1],
+                "Online"), "Phoenix: prod shared lyra-lists", "Minor",
+                "Not Triaged", "3:12", "Jeremy lake"),
+                ("54", (
+                "checkbox-marked-circle",
+                [39 / 256, 174 / 256, 96 / 256, 1],
+                "Online"), "Sirius: NW prod shared locations",
+                "Negligible",
+                "Triaged", "13:18", "Angelica Howards"),
+                ("85", (
+                "checkbox-marked-circle",
+                [39 / 256, 174 / 256, 96 / 256, 1],
+                "Online"), "Sirius: prod independent account",
+                "Negligible",
+                "Triaged", "22:06", "Diane Okuma"),
+                ("85", (
+                "checkbox-marked-circle",
+                [39 / 256, 174 / 256, 96 / 256, 1],
+                "Online"), "Sirius: prod independent account",
+                "Negligible",
+                "Triaged", "22:06", "John Sakura"),
+                ]
+
 
             def on_row_press(self, instance_table, instance_row):
                 '''Called when a table row is clicked.'''
@@ -1010,14 +1128,43 @@ class MDDataTable(ThemableBehavior, AnchorLayout):
 
                 print(instance_table, current_row)
 
+            # Sorting Methods:
+            # Since the # 914 Pull request, the sorting method requires you to sort
+            # out the indexes of each data value for the support of selections
+
+            # The most common method to do this is with the use of the bult-in function
+            # zip and enimerate, see the example below for more info.
+
+            # the result given by these funcitons must be a list in the format of
+            # [Indexes, Sorted_Row_Data]
+
+
             def sort_on_signal(self, data):
-                return sorted(data, key=lambda l: l[2])
+                return zip(
+                    *sorted(
+                        enumerate(data),
+                        key=lambda l: l[1][2]
+                    )
+                )
 
             def sort_on_schedule(self, data):
-                return sorted(data, key=lambda l: sum([int(l[-2].split(":")[0])*60, int(l[-2].split(":")[1])]))
+                return zip(
+                    *sorted(
+                        enumerate(data),
+                        key=lambda l: sum(
+                            [int(l[1][-2].split(":")[0])*60,
+                            int(l[1][-2].split(":")[1])]
+                        )
+                    )
+                )
 
             def sort_on_team(self, data):
-                return sorted(data, key=lambda l: l[-1])
+                return zip(
+                    *sorted(
+                        enumerate(data),
+                        key=lambda l: l[1][-1]
+                    )
+                )
 
         Example().run()
     """
@@ -1088,7 +1235,38 @@ class MDDataTable(ThemableBehavior, AnchorLayout):
     row_data = ListProperty()
     """
     Data for rows. To add icon in addition to a row data, include a tuple with
-    ("icon-name", [icon-color], "row-data"). See example below.
+    This property stores the row data used to display each row in the DataTable
+    To show an icon inside a column in a row, use the folowing format in the
+    row's columns.
+
+    Format:
+
+    `("MDicon-name", [icon color in rgba], "Column Value")`
+
+    Example:
+
+    .. code-block:: python
+        [...]
+        row_data = [
+
+            # row 1
+            [
+                "value 1",
+                "value 2",
+                # the third value will have an icon inside the box
+                ["home", [128/255, 48/255, 76/255, 1], "Offie" ]
+            ],
+
+            # row 2
+            [
+                "value 1",
+                "value 2",
+                # the third value will have an icon inside the box
+                ["git", [1, 0.1, 0.1, 1], "Git Repo" ]
+            ]
+        ]
+
+    For a more complex example see below.
 
     .. code-block:: python
 
@@ -1107,11 +1285,11 @@ class MDDataTable(ThemableBehavior, AnchorLayout):
                     column_data=[
                         ("Column 1", dp(20)),
                         ("Column 2", dp(30)),
-                        ("Column 3", dp(50)),
+                        ("Column 3", dp(50), self.sort_on_col_3),
                         ("Column 4", dp(30)),
                         ("Column 5", dp(30)),
                         ("Column 6", dp(30)),
-                        ("Column 7", dp(30)),
+                        ("Column 7", dp(30), self.sort_on_col_2),
                     ],
                     row_data=[
                         # The number of elements must match the length
@@ -1178,8 +1356,24 @@ class MDDataTable(ThemableBehavior, AnchorLayout):
                 layout.add_widget(data_tables)
                 return layout
 
+            def sort_on_col_3(self, data):
+                return zip(
+                    *sorted(
+                        enumerate(data),
+                        key=lambda l: l[1][3]
+                    )
+                )
+
+            def sort_on_col_2(self, data):
+                return zip(
+                    *sorted(
+                        enumerate(data),
+                        key=lambda l: l[1][-1]
+                    )
+                )
 
         Example().run()
+
 
     .. image:: https://github.com/HeaTTheatR/KivyMD-data/raw/master/gallery/kivymddoc/data-tables-row-data.png
         :align: center
@@ -1377,8 +1571,6 @@ class MDDataTable(ThemableBehavior, AnchorLayout):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.register_event_type("on_row_press")
-        self.register_event_type("on_check_press")
         self.header = TableHeader(
             column_data=self.column_data,
             sorted_on=self.sorted_on,
@@ -1391,6 +1583,8 @@ class MDDataTable(ThemableBehavior, AnchorLayout):
             rows_num=self.rows_num,
             _parent=self,
         )
+        self.register_event_type("on_row_press")
+        self.register_event_type("on_check_press")
         self.pagination = TablePagination(table_data=self.table_data)
         self.table_data.pagination = self.pagination
         self.header.table_data = self.table_data
@@ -1399,6 +1593,33 @@ class MDDataTable(ThemableBehavior, AnchorLayout):
         self.ids.container.add_widget(self.table_data)
         if self.use_pagination:
             self.ids.container.add_widget(self.pagination)
+        Clock.schedule_once(self.create_pagination_menu, 0.5)
+        self.bind(row_data=self.update_row_data)
+
+    def update_row_data(self, instance, value):
+        """
+        Called when a the widget data must be updated.
+
+        Remember that this is a heavy function. since the whole data set must
+        be updated. you can get better results calling this metod with in a
+        coroutine.
+        """
+
+        self.table_data.row_data = value
+        self.table_data.on_rows_num(self, self.table_data.rows_num)
+        # Set cursors to 0
+        self.table_data._rows_number = 0
+        self.table_data._current_value = 1
+
+        if len(value) < self.table_data.rows_num:
+            self.table_data._to_value = len(value)
+            self.table_data.pagination.ids.button_forward.disabled = True
+        else:
+            self.table_data._to_value = self.table_data.rows_num
+            self.table_data.pagination.ids.button_forward.disabled = False
+
+        self.table_data.set_next_row_data_parts("")
+        self.pagination.ids.button_back.disabled = True
         Clock.schedule_once(self.create_pagination_menu, 0.5)
 
     def on_row_press(self, *args):
@@ -1412,12 +1633,16 @@ class MDDataTable(ThemableBehavior, AnchorLayout):
 
         return self.table_data._get_row_checks()
 
-    def _scroll_with_header(self, instance, value):
-        self.header.scroll_x = value
-
     def create_pagination_menu(self, interval):
         menu_items = [
-            {"text": f"{i}"}
+            {
+                "text": f"{i}",
+                "viewclass": "OneLineListItem",
+                "height": dp(56),
+                "on_release": lambda x=f"{i}": self.table_data.set_number_displayed_lines(
+                    x
+                ),
+            }
             for i in range(
                 self.rows_num, len(self.row_data) // 2, self.rows_num
             )
@@ -1430,7 +1655,9 @@ class MDDataTable(ThemableBehavior, AnchorLayout):
             width_mult=2,
         )
         pagination_menu.bind(
-            on_release=self.table_data.set_number_displayed_lines,
             on_dismiss=self.table_data.close_pagination_menu,
         )
         self.table_data.pagination_menu = pagination_menu
+
+    def _scroll_with_header(self, instance, value):
+        self.header.scroll_x = value

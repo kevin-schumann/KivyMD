@@ -446,6 +446,7 @@ from kivy.clock import Clock
 from kivy.lang import Builder
 from kivy.metrics import dp, sp
 from kivy.properties import (
+    AliasProperty,
     BooleanProperty,
     ColorProperty,
     ListProperty,
@@ -599,8 +600,10 @@ Builder.load_string(
 
     canvas.after:
         Color:
+            group: "color"
             rgba: root._primary_color
         Line:
+            group: "rectangle"
             width: dp(1.5)
             points:
                 (
@@ -690,13 +693,36 @@ Builder.load_string(
 
 
 class MDTextFieldRect(ThemableBehavior, TextInput):
-
     line_anim = BooleanProperty(True)
     """
     If True, then text field shows animated line when on focus.
 
     :attr:`line_anim` is an :class:`~kivy.properties.BooleanProperty`
     and defaults to `True`.
+    """
+
+    def get_rect_instruction(self):
+        canvas_instructions = self.canvas.after.get_group("rectangle")
+        return canvas_instructions[0]
+
+    _rectangle = AliasProperty(get_rect_instruction, cache=True)
+    """
+    It is the :class:`~kivy.graphics.vertex_instructions.Line`
+    instruction reference of the field rectangle.
+
+    :attr:`_rectangle` is an :class:`~kivy.properties.AliasProperty`.
+    """
+
+    def get_color_instruction(self):
+        canvas_instructions = self.canvas.after.get_group("color")
+        return canvas_instructions[0]
+
+    _rectangle_color = AliasProperty(get_color_instruction, cache=True)
+    """
+    It is the :class:`~kivy.graphics.context_instructions.Color`
+    instruction reference of the field rectangle.
+
+    :attr:`_rectangle_color` is an :class:`~kivy.properties.AliasProperty`.
     """
 
     _primary_color = ColorProperty((0, 0, 0, 0))
@@ -707,8 +733,6 @@ class MDTextFieldRect(ThemableBehavior, TextInput):
         self.theme_cls.bind(primary_color=self._update_primary_color)
 
     def anim_rect(self, points, alpha):
-        instance_line = self.canvas.children[-1].children[-1]
-        instance_color = self.canvas.children[-1].children[0]
         if alpha == 1:
             d_line = 0.3
             d_color = 0.4
@@ -718,9 +742,9 @@ class MDTextFieldRect(ThemableBehavior, TextInput):
 
         Animation(
             points=points, d=(d_line if self.line_anim else 0), t="out_cubic"
-        ).start(instance_line)
+        ).start(self._rectangle)
         Animation(a=alpha, d=(d_color if self.line_anim else 0)).start(
-            instance_color
+            self._rectangle_color
         )
 
     def _update_primary_color(self, *args):
@@ -908,6 +932,30 @@ class MDTextField(ThemableBehavior, TextInput):
     defaults to `[10, 10, 0, 0]`.
     """
 
+    font_name_helper_text = StringProperty("Roboto")
+    """
+    Font name for helper text.
+
+    :attr:`font_name_helper_text` is an :class:`~kivy.properties.StringProperty`
+    and defaults to `'Roboto'`.
+    """
+
+    font_name_hint_text = StringProperty("Roboto")
+    """
+    Font name for hint text.
+
+    :attr:`font_name_hint_text` is an :class:`~kivy.properties.StringProperty`
+    and defaults to `'Roboto'`.
+    """
+
+    font_name_max_length = StringProperty("Roboto")
+    """
+    Font name for max text length.
+
+    :attr:`font_name_max_length` is an :class:`~kivy.properties.StringProperty`
+    and defaults to `'Roboto'`.
+    """
+
     _text_len_error = BooleanProperty(False)
     _hint_lbl_font_size = NumericProperty("16sp")
     _line_blank_space_right_point = NumericProperty(0)
@@ -970,6 +1018,7 @@ class MDTextField(ThemableBehavior, TextInput):
             valign="middle",
             text=self.helper_text,
             field=self,
+            font_name=self.font_name_helper_text,
         )
         # Label object for `max_text_length` parameter.
         self._right_msg_lbl = TextfieldLabel(
@@ -985,6 +1034,15 @@ class MDTextField(ThemableBehavior, TextInput):
         )
         # MDIcon object for the icon on the right.
         self._lbl_icon_right = MDIcon(theme_text_color="Custom")
+
+    def on_font_name_helper_text(self, instance, value):
+        self._msg_lbl.font_name = value
+
+    def on_font_name_hint_text(self, instance, value):
+        self._hint_lbl.font_name = value
+
+    def on_font_name_max_length(self, instance, value):
+        self._right_msg_lbl.font_name = value
 
     def on_icon_right(self, instance, value):
         self._lbl_icon_right.icon = value
